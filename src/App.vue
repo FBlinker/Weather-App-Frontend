@@ -45,6 +45,7 @@
         <WeatherCard key="weather" :weather="weather" @save="saveToFavorites" />
         <ForecastCard key="forecast" v-if="forecast.length" :forecast="forecast" />
         <MapView key="map" :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
+        <NewsCard key="news" :articles="news" :loading="newsLoading" />
       </TransitionGroup>
 
       <Transition name="fade">
@@ -66,6 +67,7 @@ import WeatherCard from './components/WeatherCard.vue'
 import ForecastCard from './components/ForecastCard.vue'
 import MapView from './components/MapView.vue'
 import Favorites from './components/Favorites.vue'
+import NewsCard from './components/NewsCard.vue'
 
 const API = 'http://localhost:8000'
 const isLight = ref(false)
@@ -75,9 +77,24 @@ const loading = ref(false)
 const error = ref('')
 const favoritesRef = ref(null)
 const locating = ref(false)
+const news = ref([])
+const newsLoading = ref(false)
 
 function saveToFavorites() {
   if (weather.value) favoritesRef.value?.add(weather.value.city)
+}
+
+async function fetchNews(city) {
+  newsLoading.value = true
+  news.value = []
+  try {
+    const res = await axios.get(`${API}/weather/news`, { params: city ? { city } : {} })
+    news.value = res.data.articles
+  } catch {
+    news.value = []
+  } finally {
+    newsLoading.value = false
+  }
 }
 
 async function fetchByCoords(lat, lon) {
@@ -92,6 +109,7 @@ async function fetchByCoords(lat, lon) {
     ])
     weather.value = currentRes.data
     forecast.value = forecastRes.data.forecast
+    fetchNews(weather.value.city)
   } catch (err) {
     error.value = err.response?.data?.detail || 'Something went wrong. Please try again.'
   } finally {
@@ -147,6 +165,7 @@ async function fetchWeather(city) {
     ])
     weather.value = currentRes.data
     forecast.value = forecastRes.data.forecast
+    fetchNews(city)
   } catch (err) {
     if (err.response?.status === 401 || err.response?.status === 500) {
       weather.value = { ...MOCK_WEATHER, city: city || MOCK_WEATHER.city }
