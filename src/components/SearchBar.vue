@@ -22,7 +22,10 @@
     </button>
     <button type="submit" class="search-btn" :disabled="loading || !query.trim()">
       <span v-if="loading" class="spinner"></span>
-      <span v-else>Search</span>
+      <template v-else>
+        <span class="btn-text">Search</span>
+        <span class="btn-icon">→</span>
+      </template>
     </button>
   </form>
 </template>
@@ -121,6 +124,19 @@ const query = ref('')
 .search-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.btn-icon { display: none; }
+
+@media (max-width: 480px) {
+  .search-bar { gap: 6px; }
+
+  .btn-text { display: none; }
+  .btn-icon { display: inline; font-size: 1rem; }
+
+  .search-btn { padding: 13px 14px; }
+
+  .search-input { font-size: 0.88rem; }
 }
 
 .spinner {
