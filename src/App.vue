@@ -42,10 +42,29 @@
       </template>
 
       <TransitionGroup name="slide-up" tag="div" class="results" v-if="!loading && weather">
-        <WeatherCard key="weather" :weather="weather" @save="saveToFavorites" />
-        <ForecastCard key="forecast" v-if="forecast.length" :forecast="forecast" />
-        <MapView key="map" :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
-        <NewsCard key="news" :articles="news" :loading="newsLoading" />
+        <!-- Tab bar -->
+        <div key="tabs" class="tab-bar">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            class="tab-btn"
+            :class="{ active: activeTab === tab.id }"
+            @click="activeTab = tab.id"
+          >
+            <span class="tab-icon">{{ tab.icon }}</span>
+            <span class="tab-label">{{ tab.label }}</span>
+          </button>
+        </div>
+
+        <!-- Tab content -->
+        <Transition name="tab-fade" mode="out-in" :key="'content'">
+          <div :key="activeTab" class="tab-content">
+            <WeatherCard v-if="activeTab === 'weather'" :weather="weather" @save="saveToFavorites" />
+            <ForecastCard v-else-if="activeTab === 'forecast'" :forecast="forecast" />
+            <MapView v-else-if="activeTab === 'map'" :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
+            <NewsCard v-else-if="activeTab === 'news'" :articles="news" :loading="newsLoading" />
+          </div>
+        </Transition>
       </TransitionGroup>
 
       <Transition name="fade">
@@ -79,6 +98,13 @@ const favoritesRef = ref(null)
 const locating = ref(false)
 const news = ref([])
 const newsLoading = ref(false)
+const activeTab = ref('weather')
+const tabs = [
+  { id: 'weather',  icon: '🌡', label: 'Weather'  },
+  { id: 'forecast', icon: '📅', label: 'Forecast' },
+  { id: 'map',      icon: '🗺',  label: 'Map'      },
+  { id: 'news',     icon: '📰', label: 'News'     },
+]
 
 function saveToFavorites() {
   if (weather.value) favoritesRef.value?.add(weather.value.city)
@@ -102,6 +128,7 @@ async function fetchByCoords(lat, lon) {
   error.value = ''
   weather.value = null
   forecast.value = []
+  activeTab.value = 'weather'
   try {
     const [currentRes, forecastRes] = await Promise.all([
       axios.get(`${API}/weather/current`, { params: { lat, lon } }),
@@ -157,6 +184,7 @@ async function fetchWeather(city) {
   error.value = ''
   weather.value = null
   forecast.value = []
+  activeTab.value = 'weather'
 
   try {
     const [currentRes, forecastRes] = await Promise.all([
@@ -351,6 +379,73 @@ body { font-family: 'Inter', sans-serif; }
 .sk-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .sk-box    { height: 64px; }
 .sk-row    { height: 36px; }
+
+/* ── Tabs ── */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  width: 100%;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.tab-btn:hover:not(.active) {
+  background: var(--border-sub);
+}
+
+.tab-btn.active {
+  background: var(--accent);
+}
+
+.tab-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.tab-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.tab-btn.active .tab-label {
+  color: #fff;
+}
+
+.tab-content {
+  width: 100%;
+}
+
+/* Tab transition */
+.tab-fade-enter-active, .tab-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.tab-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.tab-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
 
 /* ── Transitions ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.35s ease; }
