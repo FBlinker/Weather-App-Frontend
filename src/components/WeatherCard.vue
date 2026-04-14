@@ -1,18 +1,18 @@
 <template>
   <div class="weather-card">
     <div class="card-top">
-      <div class="location">
-        <h2>{{ weather.city }}</h2>
-        <span class="country">{{ weather.country }}</span>
-      </div>
-      <div class="card-top-right">
-        <button class="save-btn" @click="$emit('save')" title="Save to favorites">⭐</button>
+      <div class="location-row">
         <img
           :src="`https://openweathermap.org/img/wn/${weather.icon}@2x.png`"
           :alt="weather.description"
           class="weather-icon"
         />
+        <div class="location">
+          <h2>{{ weather.city }}</h2>
+          <span class="country">{{ weather.country }}</span>
+        </div>
       </div>
+      <button class="save-btn" @click="$emit('save')" title="Save to favorites">⭐</button>
     </div>
 
     <div class="temp-row">
@@ -75,14 +75,24 @@ defineEmits(['save'])
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-.card-top-right {
+.card-top {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.save-btn {
+.weather-icon {
+  width: 90px;
+  height: 90px;
+  margin-left: -10px;
+  flex-shrink: 0;
+}
   background: none;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -112,10 +122,21 @@ defineEmits(['save'])
   display: block;
 }
 
-.weather-icon {
-  width: 72px;
-  height: 72px;
-  margin-top: -8px;
+.save-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, background 0.2s;
+  line-height: 1;
+}
+
+.save-btn:hover {
+  border-color: #f0c040;
+  background: rgba(240,192,64,0.1);
+  transform: scale(1.15);
 }
 
 .temp-row {
