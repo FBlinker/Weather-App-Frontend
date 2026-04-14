@@ -16,6 +16,8 @@
         <SearchBar :loading="loading" @search="fetchWeather" />
       </div>
 
+      <Favorites ref="favoritesRef" @select="fetchWeather" />
+
       <Transition name="fade">
         <div v-if="error" class="error-msg">⚠ {{ error }}</div>
       </Transition>
@@ -36,7 +38,7 @@
       </template>
 
       <TransitionGroup name="slide-up" tag="div" class="results" v-if="!loading && weather">
-        <WeatherCard key="weather" :weather="weather" />
+        <WeatherCard key="weather" :weather="weather" @save="saveToFavorites" />
         <ForecastCard key="forecast" v-if="forecast.length" :forecast="forecast" />
         <MapView key="map" :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
       </TransitionGroup>
@@ -59,6 +61,7 @@ import SearchBar from './components/SearchBar.vue'
 import WeatherCard from './components/WeatherCard.vue'
 import ForecastCard from './components/ForecastCard.vue'
 import MapView from './components/MapView.vue'
+import Favorites from './components/Favorites.vue'
 
 const API = 'http://localhost:8000'
 const isLight = ref(false)
@@ -66,6 +69,11 @@ const weather = ref(null)
 const forecast = ref([])
 const loading = ref(false)
 const error = ref('')
+const favoritesRef = ref(null)
+
+function saveToFavorites() {
+  if (weather.value) favoritesRef.value?.add(weather.value.city)
+}
 
 const MOCK_WEATHER = {
   city: 'London', country: 'GB', lat: 51.5074, lon: -0.1278,

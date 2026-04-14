@@ -5,11 +5,14 @@
         <h2>{{ weather.city }}</h2>
         <span class="country">{{ weather.country }}</span>
       </div>
-      <img
-        :src="`https://openweathermap.org/img/wn/${weather.icon}@2x.png`"
-        :alt="weather.description"
-        class="weather-icon"
-      />
+      <div class="card-top-right">
+        <button class="save-btn" @click="$emit('save')" title="Save to favorites">⭐</button>
+        <img
+          :src="`https://openweathermap.org/img/wn/${weather.icon}@2x.png`"
+          :alt="weather.description"
+          class="weather-icon"
+        />
+      </div>
     </div>
 
     <div class="temp-row">
@@ -54,6 +57,7 @@
 
 <script setup>
 defineProps({ weather: { type: Object, required: true } })
+defineEmits(['save'])
 </script>
 
 <style scoped>
@@ -71,10 +75,28 @@ defineProps({ weather: { type: Object, required: true } })
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-.card-top {
+.card-top-right {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.save-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, background 0.2s;
+  line-height: 1;
+}
+
+.save-btn:hover {
+  border-color: #f0c040;
+  background: rgba(240,192,64,0.1);
+  transform: scale(1.15);
 }
 
 .location h2 {
