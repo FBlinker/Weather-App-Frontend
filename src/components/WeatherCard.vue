@@ -63,7 +63,12 @@ defineProps({ weather: { type: Object, required: true } })
   border-radius: 16px;
   padding: 24px;
   width: 100%;
-  transition: background 0.3s, border-color 0.3s;
+  transition: background 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+.weather-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
 .card-top {
@@ -103,6 +108,12 @@ defineProps({ weather: { type: Object, required: true } })
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1;
+  animation: countUp 0.6s ease both;
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .description {

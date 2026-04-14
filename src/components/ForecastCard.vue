@@ -35,7 +35,12 @@ function formatDay(dateStr) {
   border-radius: 16px;
   padding: 20px 24px;
   width: 100%;
-  transition: background 0.3s, border-color 0.3s;
+  transition: background 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+.forecast-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
 .forecast-title {
