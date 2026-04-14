@@ -14,6 +14,10 @@
 
       <div class="fade-in" style="width:100%">
         <SearchBar :loading="loading" @search="fetchWeather" />
+        <button class="location-btn" @click="useMyLocation" :disabled="locating || loading">
+          <span v-if="locating">📡 Detecting location...</span>
+          <span v-else>📍 Use my location</span>
+        </button>
       </div>
 
       <Favorites ref="favoritesRef" @select="fetchWeather" />
@@ -55,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import SearchBar from './components/SearchBar.vue'
 import WeatherCard from './components/WeatherCard.vue'
@@ -70,10 +74,51 @@ const forecast = ref([])
 const loading = ref(false)
 const error = ref('')
 const favoritesRef = ref(null)
+const locating = ref(false)
 
 function saveToFavorites() {
   if (weather.value) favoritesRef.value?.add(weather.value.city)
 }
+
+async function fetchByCoords(lat, lon) {
+  loading.value = true
+  error.value = ''
+  weather.value = null
+  forecast.value = []
+  try {
+    const [currentRes, forecastRes] = await Promise.all([
+      axios.get(`${API}/weather/current`, { params: { lat, lon } }),
+      axios.get(`${API}/weather/forecast`, { params: { lat, lon } }),
+    ])
+    weather.value = currentRes.data
+    forecast.value = forecastRes.data.forecast
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Something went wrong. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+function useMyLocation() {
+  if (!navigator.geolocation) {
+    error.value = 'Geolocation is not supported by your browser.'
+    return
+  }
+  locating.value = true
+  error.value = ''
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      locating.value = false
+      fetchByCoords(pos.coords.latitude, pos.coords.longitude)
+    },
+    () => {
+      locating.value = false
+      error.value = 'Location access denied. Please search for a city manually.'
+    }
+  )
+}
+
+onMounted(() => useMyLocation())
 
 const MOCK_WEATHER = {
   city: 'London', country: 'GB', lat: 51.5074, lon: -0.1278,
@@ -202,6 +247,36 @@ body { font-family: 'Inter', sans-serif; }
   line-height: 1;
 }
 .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+/* ── Location button ── */
+.location-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.location-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.05);
+}
+
+.location-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ── Error ── */
 .error-msg {
