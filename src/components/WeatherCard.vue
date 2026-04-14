@@ -93,21 +93,6 @@ defineEmits(['save'])
   margin-left: -10px;
   flex-shrink: 0;
 }
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 5px 9px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s, background 0.2s;
-  line-height: 1;
-}
-
-.save-btn:hover {
-  border-color: #f0c040;
-  background: rgba(240,192,64,0.1);
-  transform: scale(1.15);
-}
 
 .location h2 {
   color: var(--text);
@@ -135,7 +120,7 @@ defineEmits(['save'])
 
 .save-btn:hover {
   border-color: #f0c040;
-  background: rgba(240,192,64,0.1);
+  background: rgba(240, 192, 64, 0.1);
   transform: scale(1.15);
 }
 
