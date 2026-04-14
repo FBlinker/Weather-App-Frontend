@@ -10,6 +10,16 @@
         :disabled="loading"
       />
     </div>
+    <button
+      type="button"
+      class="location-btn"
+      :disabled="locating || loading"
+      @click="$emit('locate')"
+      title="Use my location"
+    >
+      <span v-if="locating">📡</span>
+      <span v-else>📍</span>
+    </button>
     <button type="submit" class="search-btn" :disabled="loading || !query.trim()">
       <span v-if="loading" class="spinner"></span>
       <span v-else>Search</span>
@@ -19,15 +29,15 @@
 
 <script setup>
 import { ref } from 'vue'
-defineProps({ loading: Boolean })
-defineEmits(['search'])
+defineProps({ loading: Boolean, locating: Boolean })
+defineEmits(['search', 'locate'])
 const query = ref('')
 </script>
 
 <style scoped>
 .search-bar {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -67,6 +77,28 @@ const query = ref('')
   color: var(--text-dim);
 }
 
+.location-btn {
+  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.location-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.location-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .search-btn {
   padding: 13px 22px;
   background: var(--btn-bg);
@@ -79,6 +111,7 @@ const query = ref('')
   transition: background 0.2s;
   font-family: 'Inter', sans-serif;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .search-btn:hover:not(:disabled) {

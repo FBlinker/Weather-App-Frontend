@@ -92,7 +92,8 @@ watch(() => props.isLight, (light) => {
 }
 
 .map-container {
-  height: 280px;
+  height: 100%;
+  min-height: 280px;
   border-radius: 10px;
   overflow: hidden;
   z-index: 0;

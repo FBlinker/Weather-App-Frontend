@@ -1,6 +1,6 @@
 <template>
   <div class="news-card">
-    <h3 class="news-title">📰 Weather News</h3>
+    <h3 class="news-title" v-if="showTitle">📰 Weather News</h3>
 
     <div v-if="loading" class="news-list">
       <div v-for="n in 3" :key="n" class="news-skeleton">
@@ -49,6 +49,7 @@
 defineProps({
   articles: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
+  showTitle: { type: Boolean, default: true },
 })
 
 function truncate(text, max = 100) {
@@ -64,12 +65,8 @@ function formatDate(iso) {
 
 <style scoped>
 .news-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 24px;
+  padding: 16px 20px;
   width: 100%;
-  transition: background 0.3s, border-color 0.3s;
 }
 
 .news-title {

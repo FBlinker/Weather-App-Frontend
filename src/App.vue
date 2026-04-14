@@ -13,11 +13,7 @@
       </div>
 
       <div class="fade-in" style="width:100%">
-        <SearchBar :loading="loading" @search="fetchWeather" />
-        <button class="location-btn" @click="useMyLocation" :disabled="locating || loading">
-          <span v-if="locating">📡 Detecting location...</span>
-          <span v-else>📍 Use my location</span>
-        </button>
+        <SearchBar :loading="loading" :locating="locating" @search="fetchWeather" @locate="useMyLocation" />
       </div>
 
       <Favorites ref="favoritesRef" @select="fetchWeather" />
@@ -42,29 +38,22 @@
       </template>
 
       <TransitionGroup name="slide-up" tag="div" class="results" v-if="!loading && weather">
-        <!-- Tab bar -->
-        <div key="tabs" class="tab-bar">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            class="tab-btn"
-            :class="{ active: activeTab === tab.id }"
-            @click="activeTab = tab.id"
-          >
-            <span class="tab-icon">{{ tab.icon }}</span>
-            <span class="tab-label">{{ tab.label }}</span>
-          </button>
+
+        <!-- Top row: Weather + Forecast + Map side by side -->
+        <div key="top-row" class="top-row">
+          <WeatherCard :weather="weather" @save="saveToFavorites" />
+          <ForecastCard :forecast="forecast" />
+          <MapView :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
         </div>
 
-        <!-- Tab content -->
-        <Transition name="tab-fade" mode="out-in" :key="'content'">
-          <div :key="activeTab" class="tab-content">
-            <WeatherCard v-if="activeTab === 'weather'" :weather="weather" @save="saveToFavorites" />
-            <ForecastCard v-else-if="activeTab === 'forecast'" :forecast="forecast" />
-            <MapView v-else-if="activeTab === 'map'" :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
-            <NewsCard v-else-if="activeTab === 'news'" :articles="news" :loading="newsLoading" />
+        <!-- News section with tab header -->
+        <div key="news-section" class="news-section">
+          <div class="news-tab-header">
+            <span class="news-tab-title">📰 Weather News</span>
           </div>
-        </Transition>
+          <NewsCard :articles="news" :loading="newsLoading" :show-title="false" />
+        </div>
+
       </TransitionGroup>
 
       <Transition name="fade">
@@ -264,7 +253,7 @@ body { font-family: 'Inter', sans-serif; }
   align-items: center;
   gap: 20px;
   width: 100%;
-  max-width: 500px;
+  max-width: 1200px;
 }
 
 /* ── Header ── */
@@ -294,36 +283,6 @@ body { font-family: 'Inter', sans-serif; }
   line-height: 1;
 }
 .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
-
-/* ── Location button ── */
-.location-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px;
-  background: transparent;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-}
-
-.location-btn:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(88, 166, 255, 0.05);
-}
-
-.location-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* ── Error ── */
 .error-msg {
@@ -355,6 +314,51 @@ body { font-family: 'Inter', sans-serif; }
   flex-direction: column;
   gap: 20px;
   width: 100%;
+}
+
+/* ── Top row: 3 columns ── */
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .top-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── News section ── */
+.news-section {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.news-tab-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.news-tab-title {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 /* ── Skeleton loader ── */
