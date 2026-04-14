@@ -18,6 +18,7 @@
       <template v-if="weather">
         <WeatherCard :weather="weather" />
         <ForecastCard v-if="forecast.length" :forecast="forecast" />
+        <MapView :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
       </template>
 
       <div v-if="!weather && !error" class="placeholder">
@@ -34,6 +35,7 @@ import axios from 'axios'
 import SearchBar from './components/SearchBar.vue'
 import WeatherCard from './components/WeatherCard.vue'
 import ForecastCard from './components/ForecastCard.vue'
+import MapView from './components/MapView.vue'
 
 const API = 'http://localhost:8000'
 const isLight = ref(false)
@@ -42,6 +44,19 @@ const weather = ref(null)
 const forecast = ref([])
 const loading = ref(false)
 const error = ref('')
+
+const MOCK_WEATHER = {
+  city: 'London', country: 'GB', lat: 51.5074, lon: -0.1278,
+  temp: 14, feels_like: 12, humidity: 72, description: 'overcast clouds',
+  icon: '04d', wind_speed: 5.1, visibility: 10,
+}
+const MOCK_FORECAST = [
+  { date: '2026-04-15', temp_min: 10, temp_max: 15, description: 'light rain', icon: '10d' },
+  { date: '2026-04-16', temp_min: 9,  temp_max: 13, description: 'overcast clouds', icon: '04d' },
+  { date: '2026-04-17', temp_min: 11, temp_max: 16, description: 'few clouds', icon: '02d' },
+  { date: '2026-04-18', temp_min: 12, temp_max: 18, description: 'clear sky', icon: '01d' },
+  { date: '2026-04-19', temp_min: 10, temp_max: 15, description: 'scattered clouds', icon: '03d' },
+]
 
 async function fetchWeather(city) {
   if (!city.trim()) return
@@ -58,7 +73,14 @@ async function fetchWeather(city) {
     weather.value = currentRes.data
     forecast.value = forecastRes.data.forecast
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Something went wrong. Please try again.'
+    // If API key not yet active, fall back to mock data for preview
+    if (err.response?.status === 401 || err.response?.status === 500) {
+      weather.value = { ...MOCK_WEATHER, city: city || MOCK_WEATHER.city }
+      forecast.value = MOCK_FORECAST
+      error.value = '⚠ API key not active yet — showing mock data for preview'
+    } else {
+      error.value = err.response?.data?.detail || 'Something went wrong. Please try again.'
+    }
   } finally {
     loading.value = false
   }
