@@ -130,6 +130,7 @@ function onAuthenticated({ token: t, username: u }) {
   username.value = u
   localStorage.setItem('auth_token', t)
   localStorage.setItem('auth_username', u)
+  useMyLocation()
 }
 
 function logout() {
@@ -234,7 +235,7 @@ function useMyLocation() {
   )
 }
 
-onMounted(() => useMyLocation())
+onMounted(() => { if (token.value) useMyLocation() })
 
 const MOCK_WEATHER = {
   city: 'London', country: 'GB', lat: 51.5074, lon: -0.1278,
