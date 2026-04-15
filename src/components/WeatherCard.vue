@@ -12,7 +12,9 @@
           <span class="country">{{ weather.country }}</span>
         </div>
       </div>
-      <button class="save-btn" @click="$emit('save')" title="Save to favorites">⭐</button>
+      <button class="save-btn" @click="$emit('save')" :title="isFavorited ? 'Remove from favorites' : 'Save to favorites'">
+        <span class="star" :class="{ filled: isFavorited }">{{ isFavorited ? '★' : '☆' }}</span>
+      </button>
     </div>
 
     <div class="temp-row">
@@ -56,7 +58,7 @@
 </template>
 
 <script setup>
-defineProps({ weather: { type: Object, required: true } })
+defineProps({ weather: { type: Object, required: true }, isFavorited: { type: Boolean, default: false } })
 defineEmits(['save'])
 </script>
 
@@ -112,7 +114,7 @@ defineEmits(['save'])
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 5px 9px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s, background 0.2s;
   line-height: 1;
@@ -122,6 +124,21 @@ defineEmits(['save'])
   border-color: #f0c040;
   background: rgba(240, 192, 64, 0.1);
   transform: scale(1.15);
+}
+
+.star {
+  color: var(--text-dim);
+  transition: color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.star.filled {
+  color: #f0c040;
+  transform: scale(1.1);
+}
+
+.save-btn:hover .star {
+  color: #f0c040;
 }
 
 .temp-row {

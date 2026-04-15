@@ -41,7 +41,7 @@
 
         <!-- Top row: Weather + Forecast + Map side by side -->
         <div key="top-row" class="top-row">
-          <WeatherCard :weather="weather" @save="saveToFavorites" />
+          <WeatherCard :weather="weather" :is-favorited="isFavorited" @save="saveToFavorites" />
           <ForecastCard :forecast="forecast" :city="weather.city" :lat="weather.lat" :lon="weather.lon" />
           <MapView :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
         </div>
@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import SearchBar from './components/SearchBar.vue'
 import WeatherCard from './components/WeatherCard.vue'
@@ -97,8 +97,10 @@ const tabs = [
 ]
 
 function saveToFavorites() {
-  if (weather.value) favoritesRef.value?.add(weather.value.city)
+  if (weather.value) favoritesRef.value?.toggle(weather.value.city)
 }
+
+const isFavorited = computed(() => favoritesRef.value?.has(weather.value?.city) ?? false)
 
 async function fetchNews(city) {
   newsLoading.value = true

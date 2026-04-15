@@ -47,11 +47,26 @@ function remove(city) {
   save()
 }
 
+function has(city) {
+  return cities.value.includes(city?.trim())
+}
+
+function toggle(city) {
+  const name = city?.trim()
+  if (!name) return
+  if (cities.value.includes(name)) {
+    cities.value = cities.value.filter(c => c !== name)
+  } else {
+    cities.value.unshift(name)
+  }
+  save()
+}
+
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cities.value))
 }
 
-defineExpose({ add })
+defineExpose({ add, remove, has, toggle })
 </script>
 
 <style scoped>
