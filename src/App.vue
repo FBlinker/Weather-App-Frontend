@@ -13,7 +13,7 @@
       </div>
 
       <div class="fade-in" style="width:100%">
-        <SearchBar :loading="loading" :locating="locating" @search="fetchWeather" @locate="useMyLocation" />
+        <SearchBar :loading="loading" :locating="locating" :modelValue="searchQuery" @update:modelValue="searchQuery = $event" @search="fetchWeather" @locate="useMyLocation" />
       </div>
 
       <Favorites ref="favoritesRef" @select="fetchWeather" />
@@ -87,6 +87,7 @@ const favoritesRef = ref(null)
 const locating = ref(false)
 const news = ref([])
 const newsLoading = ref(false)
+const searchQuery = ref('')
 const activeTab = ref('weather')
 const tabs = [
   { id: 'weather',  icon: '🌡', label: 'Weather'  },
@@ -125,6 +126,7 @@ async function fetchByCoords(lat, lon) {
     ])
     weather.value = currentRes.data
     forecast.value = forecastRes.data.forecast
+    searchQuery.value = currentRes.data.city
     fetchNews(weather.value.city)
   } catch (err) {
     error.value = err.response?.data?.detail || 'Something went wrong. Please try again.'

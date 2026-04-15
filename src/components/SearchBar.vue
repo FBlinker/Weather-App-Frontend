@@ -1,9 +1,10 @@
 <template>
-  <form class="search-bar" @submit.prevent="$emit('search', query)">
+  <form class="search-bar" @submit.prevent="$emit('search', modelValue)">
     <div class="input-wrapper">
       <span class="search-icon">🔍</span>
       <input
-        v-model="query"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
         type="text"
         placeholder="Search for a city..."
         class="search-input"
@@ -20,21 +21,19 @@
       <span v-if="locating">📡</span>
       <span v-else>📍</span>
     </button>
-    <button type="submit" class="search-btn" :disabled="loading || !query.trim()">
+    <button type="submit" class="search-btn" :disabled="loading || !modelValue?.trim()">
       <span v-if="loading" class="spinner"></span>
       <template v-else>
         <span class="btn-text">Search</span>
-        <span class="btn-icon">→</span>
+        <span class="btn-icon">🔍</span>
       </template>
     </button>
   </form>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-defineProps({ loading: Boolean, locating: Boolean })
-defineEmits(['search', 'locate'])
-const query = ref('')
+defineProps({ loading: Boolean, locating: Boolean, modelValue: String })
+defineEmits(['search', 'locate', 'update:modelValue'])
 </script>
 
 <style scoped>
