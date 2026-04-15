@@ -10,6 +10,7 @@
         </div>
         <div class="header-right">
           <span class="username">👤 {{ username }}</span>
+          <button class="fav-modal-btn" @click="showFavModal = true" title="Favorite cities">⭐</button>
           <button class="theme-toggle" @click="isLight = !isLight" :title="isLight ? 'Switch to Dark' : 'Switch to Light'">
             {{ isLight ? '🌙' : '☀️' }}
           </button>
@@ -74,6 +75,9 @@
         <div v-if="toastVisible" class="toast">{{ toast }}</div>
       </Transition>
     </Teleport>
+
+    <!-- Favorites Modal -->
+    <FavoritesModal :open="showFavModal" @close="showFavModal = false" @select="fetchWeather" />
   </div>
 </template>
 
@@ -87,6 +91,7 @@ import MapView from './components/MapView.vue'
 import Favorites from './components/Favorites.vue'
 import NewsCard from './components/NewsCard.vue'
 import AuthPage from './components/AuthPage.vue'
+import FavoritesModal from './components/FavoritesModal.vue'
 
 const API = 'http://localhost:8000'
 const isLight = ref(false)
@@ -143,6 +148,7 @@ const loading = ref(false)
 const error = ref('')
 const favoritesRef = ref(null)
 const locating = ref(false)
+const showFavModal = ref(false)
 const news = ref([])
 const newsLoading = ref(false)
 const searchQuery = ref('')
@@ -387,6 +393,22 @@ body { font-family: 'Inter', sans-serif; }
 .logout-btn:hover {
   border-color: var(--error-text);
   color: var(--error-text);
+}
+
+.fav-modal-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  line-height: 1;
+}
+
+.fav-modal-btn:hover {
+  border-color: #f0c040;
+  transform: scale(1.1);
 }
 
 /* ── Error ── */
