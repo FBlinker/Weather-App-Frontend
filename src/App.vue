@@ -16,7 +16,7 @@
         <SearchBar :loading="loading" :locating="locating" :modelValue="searchQuery" @update:modelValue="searchQuery = $event" @search="fetchWeather" @locate="useMyLocation" />
       </div>
 
-      <Favorites ref="favoritesRef" @select="fetchWeather" />      <Transition name="fade">
+      <Favorites ref="favoritesRef" style="display:none" />      <Transition name="fade">
         <div v-if="error" class="error-msg">⚠ {{ error }}</div>
       </Transition>
 
