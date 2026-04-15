@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 
 const emit = defineEmits(['authenticated'])
@@ -68,17 +68,6 @@ const password = ref('')
 const showPass = ref(false)
 const loading = ref(false)
 const error = ref('')
-
-// Handle redirect back from Google OAuth
-onMounted(() => {
-  const params = new URLSearchParams(window.location.search)
-  const token = params.get('token')
-  const user = params.get('username')
-  if (token && user) {
-    window.history.replaceState({}, '', '/')
-    emit('authenticated', { token, username: user })
-  }
-})
 
 function loginWithGoogle() {
   window.location.href = `${API}/auth/google`

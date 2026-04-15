@@ -92,6 +92,16 @@ const API = 'http://localhost:8000'
 const isLight = ref(false)
 
 // ── Auth ──
+// Check for Google OAuth redirect token in URL first
+const urlParams = new URLSearchParams(window.location.search)
+const urlToken = urlParams.get('token')
+const urlUsername = urlParams.get('username')
+if (urlToken && urlUsername) {
+  localStorage.setItem('auth_token', urlToken)
+  localStorage.setItem('auth_username', urlUsername)
+  window.history.replaceState({}, '', '/')
+}
+
 const token = ref(localStorage.getItem('auth_token') || '')
 const username = ref(localStorage.getItem('auth_username') || '')
 
