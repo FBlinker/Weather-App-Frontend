@@ -249,7 +249,7 @@ function formatDayFull(dateStr) {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -259,8 +259,8 @@ function formatDayFull(dateStr) {
 }
 
 .modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #1c2128;
+  border: 1px solid #373e47;
   border-radius: 20px;
   width: 100%;
   max-width: 860px;
@@ -268,7 +268,13 @@ function formatDayFull(dateStr) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+.app.light .modal {
+  background: #ffffff;
+  border-color: #d0d7de;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
 }
 
 /* ── Modal header ── */
@@ -277,8 +283,14 @@ function formatDayFull(dateStr) {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #373e47;
   flex-shrink: 0;
+  background: #161b22;
+}
+
+.app.light .modal-header {
+  background: #f6f8fa;
+  border-bottom-color: #d0d7de;
 }
 
 .modal-title {
@@ -290,31 +302,39 @@ function formatDayFull(dateStr) {
 .modal-day-icon { width: 52px; height: 52px; }
 
 .modal-title h2 {
-  color: var(--text);
+  color: #e6edf3;
   font-size: 1.3rem;
   font-weight: 700;
 }
 
+.app.light .modal-title h2 { color: #1f2328; }
+
 .modal-subtitle {
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.82rem;
   margin-top: 2px;
 }
 
 .modal-close {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #21262d;
+  border: 1px solid #373e47;
   border-radius: 8px;
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.9rem;
   padding: 6px 10px;
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
 
+.app.light .modal-close {
+  background: #f6f8fa;
+  border-color: #d0d7de;
+  color: #57606a;
+}
+
 .modal-close:hover {
-  border-color: var(--error-text);
-  color: var(--error-text);
+  border-color: #f85149;
+  color: #f85149;
 }
 
 /* ── Modal body ── */
@@ -323,7 +343,10 @@ function formatDayFull(dateStr) {
   overflow-y: hidden;
   padding: 28px 24px;
   flex: 1;
+  background: #1c2128;
 }
+
+.app.light .modal-body { background: #ffffff; }
 
 /* ── Horizontal timeline ── */
 .timeline {
@@ -350,9 +373,10 @@ function formatDayFull(dateStr) {
 .connector-line {
   flex: 1;
   height: 2px;
-  background: var(--border);
+  background: #373e47;
 }
 
+.app.light .connector-line { background: #d0d7de; }
 .connector-line.hidden { background: transparent; }
 
 .connector-dot {
@@ -366,8 +390,8 @@ function formatDayFull(dateStr) {
 
 /* ── Slot card ── */
 .slot-card {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #0d1117;
+  border: 1px solid #373e47;
   border-radius: 14px;
   padding: 14px 10px;
   width: 120px;
@@ -376,6 +400,11 @@ function formatDayFull(dateStr) {
   align-items: center;
   gap: 6px;
   transition: border-color 0.2s, transform 0.2s;
+}
+
+.app.light .slot-card {
+  background: #f6f8fa;
+  border-color: #d0d7de;
 }
 
 .slot-card:hover {
@@ -392,13 +421,15 @@ function formatDayFull(dateStr) {
 .slot-icon { width: 48px; height: 48px; }
 
 .slot-temp {
-  color: var(--text);
+  color: #e6edf3;
   font-size: 1.3rem;
   font-weight: 700;
 }
 
+.app.light .slot-temp { color: #1f2328; }
+
 .slot-desc {
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.72rem;
   text-transform: capitalize;
   text-align: center;
@@ -414,8 +445,8 @@ function formatDayFull(dateStr) {
 }
 
 .stat {
-  background: var(--surface);
-  border: 1px solid var(--border-sub);
+  background: #161b22;
+  border: 1px solid #30363d;
   border-radius: 8px;
   padding: 5px 4px;
   display: flex;
@@ -424,9 +455,17 @@ function formatDayFull(dateStr) {
   gap: 1px;
 }
 
+.app.light .stat {
+  background: #ffffff;
+  border-color: #d0d7de;
+}
+
 .stat-icon { font-size: 0.75rem; }
-.stat-val  { color: var(--text); font-size: 0.78rem; font-weight: 600; }
-.stat-label{ color: var(--text-dim); font-size: 0.62rem; }
+.stat-val  { color: #e6edf3; font-size: 0.78rem; font-weight: 600; }
+.stat-label{ color: #8b949e; font-size: 0.62rem; }
+
+.app.light .stat-val  { color: #1f2328; }
+.app.light .stat-label{ color: #57606a; }
 
 /* ── Skeleton ── */
 .timeline-skeleton {
