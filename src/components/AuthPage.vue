@@ -92,7 +92,7 @@ async function submit() {
 <style scoped>
 .auth-page {
   min-height: 100vh;
-  background: var(--bg);
+  background: #0d1117;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,8 +100,8 @@ async function submit() {
 }
 
 .auth-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #161b22;
+  border: 1px solid #30363d;
   border-radius: 20px;
   padding: 40px 36px;
   width: 100%;
@@ -110,21 +110,21 @@ async function submit() {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
   animation: fadeInUp 0.4s ease both;
 }
 
 .auth-logo { font-size: 3rem; }
 
 .auth-title {
-  color: var(--text);
+  color: #e6edf3;
   font-size: 1.6rem;
   font-weight: 700;
   margin: 0;
 }
 
 .auth-subtitle {
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
@@ -144,7 +144,7 @@ async function submit() {
 }
 
 .field label {
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -152,20 +152,21 @@ async function submit() {
 }
 
 .field input {
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #0d1117;
+  border: 1px solid #30363d;
   border-radius: 10px;
   padding: 12px 14px;
-  color: var(--text);
+  color: #e6edf3;
   font-size: 0.95rem;
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
+  box-sizing: border-box;
 }
 
-.field input:focus { border-color: var(--accent); }
-.field input::placeholder { color: var(--text-dim); }
+.field input:focus { border-color: #58a6ff; }
+.field input::placeholder { color: #484f58; }
 
 .password-wrap {
   position: relative;
@@ -187,14 +188,14 @@ async function submit() {
 }
 
 .hint {
-  color: var(--text-dim);
+  color: #484f58;
   font-size: 0.75rem;
 }
 
 .auth-error {
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
-  color: var(--error-text);
+  background: rgba(248,81,73,0.15);
+  border: 1px solid rgba(248,81,73,0.4);
+  color: #f85149;
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -202,8 +203,8 @@ async function submit() {
 }
 
 .auth-btn {
-  background: var(--btn-bg);
-  color: #fff;
+  background: #238636;
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 13px;
@@ -213,13 +214,14 @@ async function submit() {
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
   margin-top: 4px;
+  width: 100%;
 }
 
-.auth-btn:hover:not(:disabled) { background: var(--btn-hover); }
+.auth-btn:hover:not(:disabled) { background: #2ea043; }
 .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .auth-switch {
-  color: var(--text-muted);
+  color: #8b949e;
   font-size: 0.85rem;
   margin-top: 8px;
 }
@@ -227,7 +229,7 @@ async function submit() {
 .switch-btn {
   background: none;
   border: none;
-  color: var(--accent);
+  color: #58a6ff;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
