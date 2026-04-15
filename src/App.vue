@@ -1,5 +1,6 @@
 <template>
-  <div class="app" :class="{ light: isLight }">
+  <AuthPage v-if="!token" @authenticated="onAuthenticated" />
+  <div v-else class="app" :class="{ light: isLight }">
     <div class="container">
 
       <div class="header fade-in">
@@ -7,9 +8,13 @@
           <span class="header-icon">⛅</span>
           <h1>Weather App</h1>
         </div>
-        <button class="theme-toggle" @click="isLight = !isLight" :title="isLight ? 'Switch to Dark' : 'Switch to Light'">
-          {{ isLight ? '🌙' : '☀️' }}
-        </button>
+        <div class="header-right">
+          <span class="username">👤 {{ username }}</span>
+          <button class="theme-toggle" @click="isLight = !isLight" :title="isLight ? 'Switch to Dark' : 'Switch to Light'">
+            {{ isLight ? '🌙' : '☀️' }}
+          </button>
+          <button class="logout-btn" @click="logout" title="Sign out">⏻</button>
+        </div>
       </div>
 
       <div class="fade-in" style="width:100%">
@@ -81,9 +86,47 @@ import ForecastCard from './components/ForecastCard.vue'
 import MapView from './components/MapView.vue'
 import Favorites from './components/Favorites.vue'
 import NewsCard from './components/NewsCard.vue'
+import AuthPage from './components/AuthPage.vue'
 
 const API = 'http://localhost:8000'
 const isLight = ref(false)
+
+// ── Auth ──
+const token = ref(localStorage.getItem('auth_token') || '')
+const username = ref(localStorage.getItem('auth_username') || '')
+
+// Attach token to every axios request
+axios.interceptors.request.use(config => {
+  if (token.value) config.headers.Authorization = `Bearer ${token.value}`
+  return config
+})
+
+// Auto-logout on 401
+axios.interceptors.response.use(
+  res => res,
+  err => {
+    if (err.response?.status === 401 && token.value) logout()
+    return Promise.reject(err)
+  }
+)
+
+function onAuthenticated({ token: t, username: u }) {
+  token.value = t
+  username.value = u
+  localStorage.setItem('auth_token', t)
+  localStorage.setItem('auth_username', u)
+}
+
+function logout() {
+  token.value = ''
+  username.value = ''
+  localStorage.removeItem('auth_token')
+  localStorage.removeItem('auth_username')
+  weather.value = null
+  forecast.value = []
+  news.value = []
+  error.value = ''
+}
 const weather = ref(null)
 const forecast = ref([])
 const loading = ref(false)
@@ -295,6 +338,19 @@ body { font-family: 'Inter', sans-serif; }
   font-weight: 700;
   letter-spacing: -0.5px;
 }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .theme-toggle {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -306,6 +362,22 @@ body { font-family: 'Inter', sans-serif; }
   line-height: 1;
 }
 .theme-toggle:hover { border-color: var(--accent); transform: scale(1.1); }
+
+.logout-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  color: var(--text-muted);
+  line-height: 1;
+}
+.logout-btn:hover {
+  border-color: var(--error-text);
+  color: var(--error-text);
+}
 
 /* ── Error ── */
 .error-msg {
