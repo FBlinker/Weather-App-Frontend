@@ -16,9 +16,7 @@
         <SearchBar :loading="loading" :locating="locating" :modelValue="searchQuery" @update:modelValue="searchQuery = $event" @search="fetchWeather" @locate="useMyLocation" />
       </div>
 
-      <Favorites ref="favoritesRef" @select="fetchWeather" />
-
-      <Transition name="fade">
+      <Favorites ref="favoritesRef" @select="fetchWeather" />      <Transition name="fade">
         <div v-if="error" class="error-msg">⚠ {{ error }}</div>
       </Transition>
 
@@ -64,6 +62,13 @@
       </Transition>
 
     </div>
+
+    <!-- Toast -->
+    <Teleport to="body">
+      <Transition name="toast">
+        <div v-if="toastVisible" class="toast">{{ toast }}</div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -97,10 +102,24 @@ const tabs = [
 ]
 
 function saveToFavorites() {
-  if (weather.value) favoritesRef.value?.toggle(weather.value.city)
+  if (!weather.value) return
+  const wasAdded = !favoritesRef.value?.has(weather.value.city)
+  favoritesRef.value?.toggle(weather.value.city)
+  showToast(wasAdded ? '⭐ Added to Favorites' : '✕ Removed from Favorites')
 }
 
 const isFavorited = computed(() => favoritesRef.value?.has(weather.value?.city) ?? false)
+
+const toast = ref('')
+const toastVisible = ref(false)
+let toastTimer = null
+
+function showToast(msg) {
+  toast.value = msg
+  toastVisible.value = true
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toastVisible.value = false }, 2500)
+}
 
 async function fetchNews(city) {
   newsLoading.value = true
@@ -453,6 +472,33 @@ body { font-family: 'Inter', sans-serif; }
 .tab-fade-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #238636;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 9999;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.toast-enter-active, .toast-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-enter-from, .toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
 }
 
 /* ── Transitions ── */
