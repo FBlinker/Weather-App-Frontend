@@ -42,7 +42,7 @@
         <!-- Top row: Weather + Forecast + Map side by side -->
         <div key="top-row" class="top-row">
           <WeatherCard :weather="weather" @save="saveToFavorites" />
-          <ForecastCard :forecast="forecast" />
+          <ForecastCard :forecast="forecast" :city="weather.city" :lat="weather.lat" :lon="weather.lon" />
           <MapView :lat="weather.lat" :lon="weather.lon" :city="weather.city" :isLight="isLight" />
         </div>
 
