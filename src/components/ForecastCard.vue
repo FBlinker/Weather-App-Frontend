@@ -413,9 +413,14 @@ function formatDayFull(dateStr) {
 }
 
 .slot-time {
-  color: var(--accent);
-  font-size: 0.85rem;
+  color: #e6edf3;
+  font-size: 0.9rem;
   font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.app.light .slot-time {
+  color: #1f2328;
 }
 
 .slot-icon { width: 48px; height: 48px; }
