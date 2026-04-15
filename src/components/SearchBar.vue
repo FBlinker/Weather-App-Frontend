@@ -4,24 +4,30 @@
       <span class="search-icon">🔍</span>
       <input
         :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
         type="text"
         placeholder="Search for a city..."
         class="search-input"
         :disabled="loading"
+        @input="$emit('update:modelValue', $event.target.value)"
       />
     </div>
+
     <button
       type="button"
       class="location-btn"
+      title="Use my location"
       :disabled="locating || loading"
       @click="$emit('locate')"
-      title="Use my location"
     >
       <span v-if="locating">📡</span>
       <span v-else>📍</span>
     </button>
-    <button type="submit" class="search-btn" :disabled="loading || !modelValue?.trim()">
+
+    <button
+      type="submit"
+      class="search-btn"
+      :disabled="loading || !modelValue?.trim()"
+    >
       <span v-if="loading" class="spinner"></span>
       <template v-else>
         <span class="btn-text">Search</span>
@@ -32,16 +38,20 @@
 </template>
 
 <script setup>
-defineProps({ loading: Boolean, locating: Boolean, modelValue: String })
+defineProps({
+  /** Whether a weather fetch is in progress. */
+  loading: { type: Boolean, default: false },
+  /** Whether geolocation is in progress. */
+  locating: { type: Boolean, default: false },
+  /** v-model value — the current search query string. */
+  modelValue: { type: String, default: '' },
+})
+
 defineEmits(['search', 'locate', 'update:modelValue'])
 </script>
 
 <style scoped>
-.search-bar {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
+.search-bar { display: flex; gap: 8px; width: 100%; }
 
 .input-wrapper {
   flex: 1;
@@ -54,15 +64,9 @@ defineEmits(['search', 'locate', 'update:modelValue'])
   transition: border-color 0.2s;
 }
 
-.input-wrapper:focus-within {
-  border-color: var(--accent);
-}
+.input-wrapper:focus-within { border-color: var(--accent); }
 
-.search-icon {
-  font-size: 0.9rem;
-  margin-right: 8px;
-  opacity: 0.4;
-}
+.search-icon { font-size: 0.9rem; margin-right: 8px; opacity: 0.4; }
 
 .search-input {
   flex: 1;
@@ -75,9 +79,7 @@ defineEmits(['search', 'locate', 'update:modelValue'])
   font-family: 'Inter', sans-serif;
 }
 
-.search-input::placeholder {
-  color: var(--text-dim);
-}
+.search-input::placeholder { color: var(--text-dim); }
 
 .location-btn {
   padding: 13px 14px;
@@ -93,13 +95,10 @@ defineEmits(['search', 'locate', 'update:modelValue'])
 
 .location-btn:hover:not(:disabled) {
   border-color: var(--accent);
-  background: rgba(88, 166, 255, 0.08);
+  background: rgba(88,166,255,0.08);
 }
 
-.location-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+.location-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .search-btn {
   padding: 13px 22px;
@@ -116,25 +115,16 @@ defineEmits(['search', 'locate', 'update:modelValue'])
   flex-shrink: 0;
 }
 
-.search-btn:hover:not(:disabled) {
-  background: var(--btn-hover);
-}
-
-.search-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+.search-btn:hover:not(:disabled) { background: var(--btn-hover); }
+.search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-icon { display: none; }
 
 @media (max-width: 480px) {
   .search-bar { gap: 6px; }
-
   .btn-text { display: none; }
   .btn-icon { display: inline; font-size: 1rem; }
-
   .search-btn { padding: 13px 14px; }
-
   .search-input { font-size: 0.88rem; }
 }
 
@@ -148,7 +138,5 @@ defineEmits(['search', 'locate', 'update:modelValue'])
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

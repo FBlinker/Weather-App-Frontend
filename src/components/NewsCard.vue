@@ -1,7 +1,8 @@
 <template>
   <div class="news-card">
-    <h3 class="news-title" v-if="showTitle">📰 Weather News</h3>
+    <h3 v-if="showTitle" class="news-title">📰 Weather News</h3>
 
+    <!-- Skeleton loader -->
     <div v-if="loading" class="news-list">
       <div v-for="n in 3" :key="n" class="news-skeleton">
         <div class="sk sk-img"></div>
@@ -13,6 +14,7 @@
       </div>
     </div>
 
+    <!-- Article list -->
     <div v-else-if="articles.length" class="news-list">
       <a
         v-for="article in articles"
@@ -27,12 +29,13 @@
           :src="article.image"
           :alt="article.title"
           class="news-img"
-          @error="e => e.target.style.display='none'"
+          @error="(e) => (e.target.style.display = 'none')"
         />
-        <div class="news-img placeholder-img" v-else>🌦</div>
+        <div v-else class="news-img placeholder-img">🌦</div>
+
         <div class="news-body">
           <p class="news-headline">{{ article.title }}</p>
-          <p class="news-desc" v-if="article.description">{{ truncate(article.description) }}</p>
+          <p v-if="article.description" class="news-desc">{{ truncate(article.description) }}</p>
           <div class="news-meta">
             <span class="news-source">{{ article.source }}</span>
             <span class="news-date">{{ formatDate(article.published_at) }}</span>
@@ -47,27 +50,38 @@
 
 <script setup>
 defineProps({
+  /** Array of news article objects from the API. */
   articles: { type: Array, default: () => [] },
+  /** Whether news is currently loading. */
   loading: { type: Boolean, default: false },
+  /** Whether to render the "Weather News" section heading. */
   showTitle: { type: Boolean, default: true },
 })
 
+/**
+ * Truncate a string to *max* characters, appending an ellipsis if needed.
+ * @param {string} text
+ * @param {number} [max=100]
+ */
 function truncate(text, max = 100) {
   return text.length > max ? text.slice(0, max) + '…' : text
 }
 
+/**
+ * Format an ISO date string as a short locale date.
+ * @param {string} iso
+ */
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
   })
 }
 </script>
 
 <style scoped>
-.news-card {
-  padding: 16px 20px;
-  width: 100%;
-}
+.news-card { padding: 16px 20px; width: 100%; }
 
 .news-title {
   color: var(--text-muted);
@@ -77,11 +91,7 @@ function formatDate(iso) {
   margin-bottom: 16px;
 }
 
-.news-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.news-list { display: flex; flex-direction: column; gap: 2px; }
 
 .news-item {
   display: flex;
@@ -93,9 +103,7 @@ function formatDate(iso) {
   align-items: flex-start;
 }
 
-.news-item:hover {
-  background: var(--border-sub);
-}
+.news-item:hover { background: var(--border-sub); }
 
 .news-img {
   width: 72px;
@@ -146,34 +154,21 @@ function formatDate(iso) {
   overflow: hidden;
 }
 
-.news-meta {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 2px;
-}
+.news-meta { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
 
-.news-source {
-  color: var(--accent);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.news-date {
-  color: var(--text-dim);
-  font-size: 0.72rem;
-}
+.news-source { color: var(--accent); font-size: 0.72rem; font-weight: 600; }
+.news-date   { color: var(--text-dim); font-size: 0.72rem; }
 
 /* Skeleton */
-.news-skeleton {
-  display: flex;
-  gap: 12px;
-  padding: 12px 8px;
-  align-items: flex-start;
-}
+.news-skeleton { display: flex; gap: 12px; padding: 12px 8px; align-items: flex-start; }
 
 .sk {
-  background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton) 75%
+  );
   background-size: 200% 100%;
   border-radius: 6px;
   animation: shimmer 1.4s infinite;

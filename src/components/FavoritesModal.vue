@@ -14,10 +14,10 @@
                 <div v-for="city in cities" :key="city" class="city-item">
                   <span class="city-name">{{ city }}</span>
                   <div class="city-actions">
-                    <button class="action-btn load-btn" @click="select(city)" title="Load weather">
+                    <button class="action-btn load-btn" title="Load weather" @click="select(city)">
                       🌤 Load
                     </button>
-                    <button class="action-btn remove-btn" @click="remove(city)" title="Remove">
+                    <button class="action-btn remove-btn" title="Remove" @click="remove(city)">
                       ✕
                     </button>
                   </div>
@@ -38,33 +38,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { watch } from 'vue'
+import { useFavorites } from '../composables/useFavorites'
 
-const props = defineProps({ open: Boolean })
+const props = defineProps({
+  /** Controls modal visibility. */
+  open: { type: Boolean, required: true },
+})
+
 const emit = defineEmits(['close', 'select'])
 
-const STORAGE_KEY = 'weather_favorites'
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [] }
-  catch { return [] }
-}
-
-const cities = ref(load())
-
-function remove(city) {
-  cities.value = cities.value.filter(c => c !== city)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cities.value))
-}
+const { cities, remove, reload } = useFavorites()
 
 function select(city) {
   emit('select', city)
   emit('close')
 }
 
-// Refresh list every time modal opens
-import { watch } from 'vue'
-watch(() => props.open, (val) => { if (val) cities.value = load() })
+// Refresh the list from localStorage each time the modal opens.
+watch(() => props.open, (val) => { if (val) reload() })
 </script>
 
 <style scoped>
@@ -108,12 +100,19 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
   flex-shrink: 0;
 }
 
+.app.light .modal-header {
+  background: #f6f8fa;
+  border-bottom-color: #d0d7de;
+}
+
 .modal-header h2 {
   color: #e6edf3;
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0;
 }
+
+.app.light .modal-header h2 { color: #1f2328; }
 
 .close-btn {
   background: #21262d;
@@ -126,10 +125,13 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
   transition: border-color 0.2s, color 0.2s;
 }
 
-.close-btn:hover {
-  border-color: #f85149;
-  color: #f85149;
+.app.light .close-btn {
+  background: #f6f8fa;
+  border-color: #d0d7de;
+  color: #57606a;
 }
+
+.close-btn:hover { border-color: #f85149; color: #f85149; }
 
 .modal-body {
   overflow-y: auto;
@@ -138,10 +140,9 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
   background: #1c2128;
 }
 
-.city-list {
-  display: flex;
-  flex-direction: column;
-}
+.app.light .modal-body { background: #ffffff; }
+
+.city-list { display: flex; flex-direction: column; }
 
 .city-item {
   display: flex;
@@ -161,11 +162,9 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
   font-weight: 500;
 }
 
-.city-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+.app.light .city-name { color: #1f2328; }
+
+.city-actions { display: flex; gap: 8px; align-items: center; }
 
 .action-btn {
   border: none;
@@ -180,10 +179,7 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
 
 .action-btn:hover { opacity: 0.85; transform: scale(1.05); }
 
-.load-btn {
-  background: #238636;
-  color: #fff;
-}
+.load-btn { background: #238636; color: #fff; }
 
 .remove-btn {
   background: rgba(248,81,73,0.15);
@@ -207,14 +203,19 @@ watch(() => props.open, (val) => { if (val) cities.value = load() })
 /* Transitions */
 .fav-enter-active { transition: opacity 0.25s, transform 0.25s; }
 .fav-leave-active { transition: opacity 0.2s, transform 0.2s; }
-.fav-enter-from, .fav-leave-to { opacity: 0; transform: translateX(-10px); }
+.fav-enter-from,
+.fav-leave-to { opacity: 0; transform: translateX(-10px); }
 .fav-move { transition: transform 0.25s; }
 
-.modal-enter-active, .modal-leave-active { transition: opacity 0.25s ease; }
-.modal-enter-active .modal, .modal-leave-active .modal {
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
-.modal-enter-from, .modal-leave-to { opacity: 0; }
+.modal-enter-active,
+.modal-leave-active { transition: opacity 0.25s ease; }
+
+.modal-enter-active .modal,
+.modal-leave-active .modal { transition: transform 0.25s ease, opacity 0.25s ease; }
+
+.modal-enter-from,
+.modal-leave-to { opacity: 0; }
+
 .modal-enter-from .modal { transform: scale(0.95) translateY(12px); }
 .modal-leave-to .modal   { transform: scale(0.95) translateY(12px); }
 </style>

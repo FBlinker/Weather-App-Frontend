@@ -8,8 +8,15 @@
       <form class="auth-form" @submit.prevent="submit">
         <div class="field">
           <label>Username</label>
-          <input v-model="username" type="text" placeholder="Enter username" autocomplete="username" :disabled="loading" />
+          <input
+            v-model="username"
+            type="text"
+            placeholder="Enter username"
+            autocomplete="username"
+            :disabled="loading"
+          />
         </div>
+
         <div class="field">
           <label>Password</label>
           <div class="password-wrap">
@@ -29,7 +36,11 @@
 
         <div v-if="error" class="auth-error">⚠ {{ error }}</div>
 
-        <button type="submit" class="auth-btn" :disabled="loading || !username || !password">
+        <button
+          type="submit"
+          class="auth-btn"
+          :disabled="loading || !username || !password"
+        >
           <span v-if="loading" class="spinner"></span>
           <span v-else>{{ isLogin ? 'Sign In' : 'Create Account' }}</span>
         </button>
@@ -37,7 +48,7 @@
 
       <div class="divider"><span>or</span></div>
 
-      <button class="google-btn" @click="loginWithGoogle" :disabled="loading">
+      <button class="google-btn" :disabled="loading" @click="loginWithGoogle">
         <svg class="google-icon" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -57,11 +68,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import { login, register } from '../services/api'
 
+/** Emitted with `{ token, username }` after a successful auth. */
 const emit = defineEmits(['authenticated'])
 
-const API = 'http://localhost:8000'
+const API_BASE = 'http://localhost:8000'
+
 const isLogin = ref(true)
 const username = ref('')
 const password = ref('')
@@ -70,7 +83,7 @@ const loading = ref(false)
 const error = ref('')
 
 function loginWithGoogle() {
-  window.location.href = `${API}/auth/google`
+  window.location.href = `${API_BASE}/auth/google`
 }
 
 function toggle() {
@@ -82,21 +95,10 @@ async function submit() {
   error.value = ''
   loading.value = true
   try {
-    let res
-    if (isLogin.value) {
-      const form = new URLSearchParams()
-      form.append('username', username.value)
-      form.append('password', password.value)
-      res = await axios.post(`${API}/auth/login`, form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      })
-    } else {
-      res = await axios.post(`${API}/auth/register`, {
-        username: username.value,
-        password: password.value,
-      })
-    }
-    emit('authenticated', { token: res.data.access_token, username: res.data.username })
+    const data = isLogin.value
+      ? await login(username.value, password.value)
+      : await register(username.value, password.value)
+    emit('authenticated', { token: data.access_token, username: data.username })
   } catch (err) {
     error.value = err.response?.data?.detail || 'Something went wrong.'
   } finally {
@@ -184,10 +186,7 @@ async function submit() {
 .field input:focus { border-color: #58a6ff; }
 .field input::placeholder { color: #484f58; }
 
-.password-wrap {
-  position: relative;
-}
-
+.password-wrap { position: relative; }
 .password-wrap input { padding-right: 44px; }
 
 .toggle-pass {
@@ -203,10 +202,7 @@ async function submit() {
   line-height: 1;
 }
 
-.hint {
-  color: #484f58;
-  font-size: 0.75rem;
-}
+.hint { color: #484f58; font-size: 0.75rem; }
 
 .auth-error {
   background: rgba(248,81,73,0.15);
@@ -271,10 +267,7 @@ async function submit() {
   background: #30363d;
 }
 
-.divider span {
-  color: #484f58;
-  font-size: 0.8rem;
-}
+.divider span { color: #484f58; font-size: 0.8rem; }
 
 .google-btn {
   width: 100%;
@@ -301,11 +294,7 @@ async function submit() {
 
 .google-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.google-icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
+.google-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
 .spinner {
   display: inline-block;

@@ -12,8 +12,14 @@
           <span class="country">{{ weather.country }}</span>
         </div>
       </div>
-      <button class="save-btn" @click="$emit('save')" :title="isFavorited ? 'Remove from favorites' : 'Save to favorites'">
-        <span class="star" :class="{ filled: isFavorited }">{{ isFavorited ? '★' : '☆' }}</span>
+      <button
+        class="save-btn"
+        :title="isFavorited ? 'Remove from favorites' : 'Save to favorites'"
+        @click="$emit('save')"
+      >
+        <span class="star" :class="{ filled: isFavorited }">
+          {{ isFavorited ? '★' : '☆' }}
+        </span>
       </button>
     </div>
 
@@ -58,7 +64,14 @@
 </template>
 
 <script setup>
-defineProps({ weather: { type: Object, required: true }, isFavorited: { type: Boolean, default: false } })
+defineProps({
+  /** Current weather data object from the API. */
+  weather: { type: Object, required: true },
+  /** Whether this city is in the user's favorites list. */
+  isFavorited: { type: Boolean, default: false },
+})
+
+/** Emitted when the user clicks the favorite toggle button. */
 defineEmits(['save'])
 </script>
 
@@ -83,11 +96,7 @@ defineEmits(['save'])
   align-items: flex-start;
 }
 
-.location-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+.location-row { display: flex; align-items: center; gap: 4px; }
 
 .weather-icon {
   width: 90px;
@@ -122,7 +131,7 @@ defineEmits(['save'])
 
 .save-btn:hover {
   border-color: #f0c040;
-  background: rgba(240, 192, 64, 0.1);
+  background: rgba(240,192,64,0.1);
   transform: scale(1.15);
 }
 
@@ -132,14 +141,8 @@ defineEmits(['save'])
   display: inline-block;
 }
 
-.star.filled {
-  color: #f0c040;
-  transform: scale(1.1);
-}
-
-.save-btn:hover .star {
-  color: #f0c040;
-}
+.star.filled { color: #f0c040; transform: scale(1.1); }
+.save-btn:hover .star { color: #f0c040; }
 
 .temp-row {
   display: flex;

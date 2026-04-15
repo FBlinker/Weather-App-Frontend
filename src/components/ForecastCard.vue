@@ -9,7 +9,11 @@
         @click="openDetail(day)"
       >
         <span class="day">{{ formatDay(day.date) }}</span>
-        <img :src="`https://openweathermap.org/img/wn/${day.icon}.png`" :alt="day.description" class="forecast-icon" />
+        <img
+          :src="`https://openweathermap.org/img/wn/${day.icon}.png`"
+          :alt="day.description"
+          class="forecast-icon"
+        />
         <span class="desc">{{ day.description }}</span>
         <div class="temps">
           <span class="t-max">{{ Math.round(day.temp_max) }}°</span>
@@ -20,7 +24,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Hourly detail modal -->
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="modalOpen" class="modal-overlay" @click.self="closeModal">
@@ -41,16 +45,15 @@
           </div>
 
           <div class="modal-body">
-            <!-- Loading -->
+            <!-- Skeleton -->
             <div v-if="detailLoading" class="skeleton-rows">
               <div v-for="n in 5" :key="n" class="sk-row-full">
-                <div class="sk sk-cell" v-for="c in 7" :key="c"></div>
+                <div v-for="c in 7" :key="c" class="sk sk-cell"></div>
               </div>
             </div>
 
-            <!-- Table -->
+            <!-- Hourly table -->
             <div v-else-if="detail && detail.slots.length" class="slot-table">
-              <!-- Header -->
               <div class="slot-row header-row">
                 <div class="col col-dot"></div>
                 <div class="col col-time">Time</div>
@@ -62,7 +65,6 @@
                 <div class="col col-stat">Wind</div>
                 <div class="col col-stat">Rain</div>
               </div>
-              <!-- Rows -->
               <div
                 v-for="(slot, i) in detail.slots"
                 :key="slot.time"
@@ -77,7 +79,10 @@
                 </div>
                 <div class="col col-time">{{ slot.time }}</div>
                 <div class="col col-icon">
-                  <img :src="`https://openweathermap.org/img/wn/${slot.icon}@2x.png`" :alt="slot.description" />
+                  <img
+                    :src="`https://openweathermap.org/img/wn/${slot.icon}@2x.png`"
+                    :alt="slot.description"
+                  />
                 </div>
                 <div class="col col-temp">{{ Math.round(slot.temp) }}°C</div>
                 <div class="col col-desc">{{ slot.description }}</div>
@@ -98,16 +103,17 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import { getForecastDetail } from '../services/api'
 
 const props = defineProps({
+  /** Array of daily forecast objects from the API. */
   forecast: { type: Array, required: true },
+  /** City name — used as fallback when coordinates are unavailable. */
   city: { type: String, default: null },
   lat: { type: Number, default: null },
   lon: { type: Number, default: null },
 })
 
-const API = 'http://localhost:8000'
 const modalOpen = ref(false)
 const selectedDay = ref(null)
 const detail = ref(null)
@@ -121,15 +127,11 @@ async function openDetail(day) {
   document.body.style.overflow = 'hidden'
 
   try {
-    const params = { date: day.date }
-    if (props.lat !== null && props.lon !== null) {
-      params.lat = props.lat
-      params.lon = props.lon
-    } else if (props.city) {
-      params.city = props.city
-    }
-    const res = await axios.get(`${API}/weather/forecast/detail`, { params })
-    detail.value = res.data
+    const location =
+      props.lat != null && props.lon != null
+        ? { lat: props.lat, lon: props.lon }
+        : { city: props.city }
+    detail.value = await getForecastDetail(day.date, location)
   } catch {
     detail.value = { slots: [] }
   } finally {
@@ -144,13 +146,17 @@ function closeModal() {
 
 function formatDay(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric',
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
   })
 }
 
 function formatDayFull(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric',
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
   })
 }
 </script>
@@ -241,7 +247,7 @@ function formatDayFull(dateStr) {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0,0,0,0.7);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -285,12 +291,7 @@ function formatDayFull(dateStr) {
   border-bottom-color: #d0d7de;
 }
 
-.modal-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
+.modal-title { display: flex; align-items: center; gap: 12px; }
 .modal-day-icon { width: 52px; height: 52px; }
 
 .modal-title h2 {
@@ -324,10 +325,7 @@ function formatDayFull(dateStr) {
   color: #57606a;
 }
 
-.modal-close:hover {
-  border-color: #f85149;
-  color: #f85149;
-}
+.modal-close:hover { border-color: #f85149; color: #f85149; }
 
 /* ── Modal body ── */
 .modal-body {
@@ -347,9 +345,7 @@ function formatDayFull(dateStr) {
   min-width: 600px;
 }
 
-.slot-row {
-  display: table-row;
-}
+.slot-row { display: table-row; }
 
 .col {
   display: table-cell;
@@ -361,7 +357,6 @@ function formatDayFull(dateStr) {
 
 .app.light .col { border-bottom-color: #e8ecf0; }
 
-/* Header row */
 .header-row .col {
   background: #161b22;
   color: #8b949e;
@@ -381,12 +376,8 @@ function formatDayFull(dateStr) {
   color: #57606a;
 }
 
-/* Data rows */
 .data-row:last-child .col { border-bottom: none; }
-
-.data-row:hover .col {
-  background: rgba(88, 166, 255, 0.05);
-}
+.data-row:hover .col { background: rgba(88,166,255,0.05); }
 
 /* Column widths */
 .col-dot  { width: 28px; padding: 0 8px; }
@@ -396,7 +387,7 @@ function formatDayFull(dateStr) {
 .col-desc { width: auto; white-space: normal; }
 .col-stat { width: 90px; text-align: center; }
 
-/* Dot / timeline */
+/* Timeline dot */
 .dot-wrap {
   display: flex;
   flex-direction: column;
@@ -433,11 +424,7 @@ function formatDayFull(dateStr) {
 
 .app.light .col-time { color: #1f2328; }
 
-.col-icon img {
-  width: 40px;
-  height: 40px;
-  display: block;
-}
+.col-icon img { width: 40px; height: 40px; display: block; }
 
 .col-temp {
   color: #58a6ff;
@@ -464,12 +451,7 @@ function formatDayFull(dateStr) {
 .app.light .col-stat { color: #1f2328; }
 
 /* Skeleton */
-.skeleton-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
-}
+.skeleton-rows { display: flex; flex-direction: column; }
 
 .sk-row-full {
   display: flex;
@@ -487,24 +469,22 @@ function formatDayFull(dateStr) {
 }
 
 .sk-cell { flex: 1; }
-.sk-cell:first-child { max-width: 28px; }
+.sk-cell:first-child  { max-width: 28px; }
 .sk-cell:nth-child(2) { max-width: 56px; }
 .sk-cell:nth-child(3) { max-width: 40px; }
 
-.no-data {
-  color: #484f58;
-  text-align: center;
-  padding: 40px 0;
-}
+.no-data { color: #484f58; text-align: center; padding: 40px 0; }
 
 /* ── Modal transition ── */
-.modal-enter-active, .modal-leave-active {
-  transition: opacity 0.25s ease;
-}
-.modal-enter-active .modal, .modal-leave-active .modal {
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
-.modal-enter-from, .modal-leave-to { opacity: 0; }
+.modal-enter-active,
+.modal-leave-active { transition: opacity 0.25s ease; }
+
+.modal-enter-active .modal,
+.modal-leave-active .modal { transition: transform 0.25s ease, opacity 0.25s ease; }
+
+.modal-enter-from,
+.modal-leave-to { opacity: 0; }
+
 .modal-enter-from .modal { transform: scale(0.95) translateY(16px); }
 .modal-leave-to .modal   { transform: scale(0.95) translateY(16px); }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="favorites" v-if="cities.length">
+  <div v-if="cities.length" class="favorites">
     <h3 class="fav-title">⭐ Favorite Cities</h3>
     <div class="fav-list">
       <TransitionGroup name="fav">
@@ -10,11 +10,7 @@
           @click="$emit('select', city)"
         >
           <span class="fav-name">{{ city }}</span>
-          <button
-            class="fav-remove"
-            @click.stop="remove(city)"
-            title="Remove"
-          >✕</button>
+          <button class="fav-remove" title="Remove" @click.stop="remove(city)">✕</button>
         </div>
       </TransitionGroup>
     </div>
@@ -22,57 +18,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { useFavorites } from '../composables/useFavorites'
 
-const emit = defineEmits(['select'])
+/** Emitted when the user clicks a city chip. */
+defineEmits(['select'])
 
-const STORAGE_KEY = 'weather_favorites'
-
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [] }
-  catch { return [] }
-}
-
-const cities = ref(load())
-
-function add(city) {
-  const name = city.trim()
-  if (!name || cities.value.includes(name)) return
-  cities.value.unshift(name)
-  save()
-}
-
-function remove(city) {
-  cities.value = cities.value.filter(c => c !== city)
-  save()
-}
-
-function has(city) {
-  return cities.value.includes(city?.trim())
-}
-
-function toggle(city) {
-  const name = city?.trim()
-  if (!name) return
-  if (cities.value.includes(name)) {
-    cities.value = cities.value.filter(c => c !== name)
-  } else {
-    cities.value.unshift(name)
-  }
-  save()
-}
-
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cities.value))
-}
-
-defineExpose({ add, remove, has, toggle })
+const { cities, remove } = useFavorites()
 </script>
 
 <style scoped>
-.favorites {
-  width: 100%;
-}
+.favorites { width: 100%; }
 
 .fav-title {
   color: var(--text-muted);
@@ -82,11 +37,7 @@ defineExpose({ add, remove, has, toggle })
   margin-bottom: 10px;
 }
 
-.fav-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.fav-list { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .fav-item {
   display: flex;
@@ -124,17 +75,14 @@ defineExpose({ add, remove, has, toggle })
   transition: color 0.15s, transform 0.15s;
 }
 
-.fav-remove:hover {
-  color: var(--error-text);
-  transform: scale(1.3);
-}
+.fav-remove:hover { color: var(--error-text); transform: scale(1.3); }
 
 /* TransitionGroup */
 .fav-enter-active { transition: opacity 0.3s ease, transform 0.3s ease; }
 .fav-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
-.fav-enter-from   { opacity: 0; transform: scale(0.8); }
-.fav-leave-to     { opacity: 0; transform: scale(0.8); }
-.fav-move         { transition: transform 0.3s ease; }
+.fav-enter-from,
+.fav-leave-to { opacity: 0; transform: scale(0.8); }
+.fav-move { transition: transform 0.3s ease; }
 
 @keyframes popIn {
   from { opacity: 0; transform: scale(0.85); }
