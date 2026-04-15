@@ -42,36 +42,51 @@
 
           <div class="modal-body">
             <!-- Loading -->
-            <div v-if="detailLoading" class="timeline-skeleton">
-              <div v-for="n in 5" :key="n" class="sk-slot">
-                <div class="sk sk-time"></div>
-                <div class="sk sk-circle"></div>
-                <div class="sk sk-line"></div>
-                <div class="sk sk-line short"></div>
+            <div v-if="detailLoading" class="skeleton-rows">
+              <div v-for="n in 5" :key="n" class="sk-row-full">
+                <div class="sk sk-cell" v-for="c in 7" :key="c"></div>
               </div>
             </div>
 
-          <div v-else-if="detail && detail.slots.length" class="timeline">
-            <div v-for="(slot, i) in detail.slots" :key="slot.time" class="timeline-slot">
-              <div class="connector">
-                <div class="connector-line" :class="{ hidden: i === 0 }"></div>
-                <div class="connector-dot"></div>
-                <div class="connector-line" :class="{ hidden: i === detail.slots.length - 1 }"></div>
+            <!-- Table -->
+            <div v-else-if="detail && detail.slots.length" class="slot-table">
+              <!-- Header -->
+              <div class="slot-row header-row">
+                <div class="col col-dot"></div>
+                <div class="col col-time">Time</div>
+                <div class="col col-icon"></div>
+                <div class="col col-temp">Temp</div>
+                <div class="col col-desc">Condition</div>
+                <div class="col col-stat">Feels Like</div>
+                <div class="col col-stat">Humidity</div>
+                <div class="col col-stat">Wind</div>
+                <div class="col col-stat">Rain</div>
               </div>
-              <div class="slot-card">
-                <span class="slot-time">{{ slot.time }}</span>
-                <img :src="`https://openweathermap.org/img/wn/${slot.icon}@2x.png`" :alt="slot.description" class="slot-icon" />
-                <span class="slot-temp">{{ Math.round(slot.temp) }}°C</span>
-                <span class="slot-desc">{{ slot.description }}</span>
-                <div class="slot-stats">
-                  <div class="stat"><span class="stat-icon">🤔</span><span class="stat-val">{{ Math.round(slot.feels_like) }}°C</span><span class="stat-label">Feels like</span></div>
-                  <div class="stat"><span class="stat-icon">💧</span><span class="stat-val">{{ slot.humidity }}%</span><span class="stat-label">Humidity</span></div>
-                  <div class="stat"><span class="stat-icon">💨</span><span class="stat-val">{{ slot.wind_speed }} m/s</span><span class="stat-label">Wind</span></div>
-                  <div class="stat"><span class="stat-icon">🌧</span><span class="stat-val">{{ slot.pop }}%</span><span class="stat-label">Rain</span></div>
+              <!-- Rows -->
+              <div
+                v-for="(slot, i) in detail.slots"
+                :key="slot.time"
+                class="slot-row data-row"
+              >
+                <div class="col col-dot">
+                  <div class="dot-wrap">
+                    <div class="v-line top" :class="{ invisible: i === 0 }"></div>
+                    <div class="dot"></div>
+                    <div class="v-line bottom" :class="{ invisible: i === detail.slots.length - 1 }"></div>
+                  </div>
                 </div>
+                <div class="col col-time">{{ slot.time }}</div>
+                <div class="col col-icon">
+                  <img :src="`https://openweathermap.org/img/wn/${slot.icon}@2x.png`" :alt="slot.description" />
+                </div>
+                <div class="col col-temp">{{ Math.round(slot.temp) }}°C</div>
+                <div class="col col-desc">{{ slot.description }}</div>
+                <div class="col col-stat">{{ Math.round(slot.feels_like) }}°C</div>
+                <div class="col col-stat">{{ slot.humidity }}%</div>
+                <div class="col col-stat">{{ slot.wind_speed }} m/s</div>
+                <div class="col col-stat">{{ slot.pop }}%</div>
               </div>
             </div>
-          </div>
 
             <p v-else class="no-data">No hourly data available for this date.</p>
           </div>
@@ -316,57 +331,91 @@ function formatDayFull(dateStr) {
 
 /* ── Modal body ── */
 .modal-body {
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
-  padding: 8px 0;
   flex: 1;
   background: #1c2128;
 }
 
 .app.light .modal-body { background: #ffffff; }
 
-/* ── Row layout ── */
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+/* ── Slot table ── */
+.slot-table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
 }
 
-.timeline-slot {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 24px;
+.slot-row {
+  display: table-row;
+}
+
+.col {
+  display: table-cell;
+  padding: 12px 16px;
+  vertical-align: middle;
+  white-space: nowrap;
   border-bottom: 1px solid #30363d;
-  transition: background 0.15s;
 }
 
-.app.light .timeline-slot { border-bottom-color: #e8ecf0; }
+.app.light .col { border-bottom-color: #e8ecf0; }
 
-.timeline-slot:last-child { border-bottom: none; }
-
-.timeline-slot:hover {
-  background: rgba(88,166,255,0.05);
+/* Header row */
+.header-row .col {
+  background: #161b22;
+  color: #8b949e;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 2px solid #373e47;
 }
 
-.connector {
+.app.light .header-row .col {
+  background: #f6f8fa;
+  border-bottom-color: #d0d7de;
+  color: #57606a;
+}
+
+/* Data rows */
+.data-row:last-child .col { border-bottom: none; }
+
+.data-row:hover .col {
+  background: rgba(88, 166, 255, 0.05);
+}
+
+/* Column widths */
+.col-dot  { width: 28px; padding: 0 8px; }
+.col-time { width: 56px; }
+.col-icon { width: 48px; padding: 4px 8px; }
+.col-temp { width: 72px; }
+.col-desc { width: auto; white-space: normal; }
+.col-stat { width: 90px; text-align: center; }
+
+/* Dot / timeline */
+.dot-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
-  flex-shrink: 0;
+  height: 100%;
+  min-height: 52px;
 }
 
-.connector-line {
+.v-line {
+  flex: 1;
   width: 2px;
-  height: 14px;
   background: #373e47;
+  min-height: 10px;
 }
 
-.app.light .connector-line { background: #d0d7de; }
-.connector-line.hidden { background: transparent; }
+.app.light .v-line { background: #d0d7de; }
+.v-line.invisible { background: transparent; }
 
-.connector-dot {
+.dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -375,117 +424,75 @@ function formatDayFull(dateStr) {
   box-shadow: 0 0 0 3px rgba(88,166,255,0.15);
 }
 
-/* ── Slot row content ── */
-.slot-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-}
-
-.slot-time {
+/* Cell content */
+.col-time {
   color: #e6edf3;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  width: 48px;
-  flex-shrink: 0;
 }
 
-.app.light .slot-time { color: #1f2328; }
+.app.light .col-time { color: #1f2328; }
 
-.slot-icon { width: 44px; height: 44px; flex-shrink: 0; }
+.col-icon img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
 
-.slot-temp {
+.col-temp {
   color: #58a6ff;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  width: 72px;
-  flex-shrink: 0;
 }
 
-.app.light .slot-temp { color: #0969da; }
+.app.light .col-temp { color: #0969da; }
 
-.slot-desc {
+.col-desc {
   color: #8b949e;
   font-size: 0.85rem;
   text-transform: capitalize;
-  flex: 1;
-  min-width: 0;
 }
 
-.app.light .slot-desc { color: #57606a; }
+.app.light .col-desc { color: #57606a; }
 
-.slot-stats {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 8px;
-  padding: 6px 10px;
-  white-space: nowrap;
-}
-
-.app.light .stat {
-  background: #f6f8fa;
-  border-color: #d0d7de;
-}
-
-.stat-icon { font-size: 0.85rem; }
-
-.stat-val {
+.col-stat {
   color: #e6edf3;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
-.app.light .stat-val { color: #1f2328; }
+.app.light .col-stat { color: #1f2328; }
 
-.stat-label {
-  color: #8b949e;
-  font-size: 0.75rem;
-}
-
-@media (max-width: 600px) {
-  .slot-stats { flex-wrap: wrap; gap: 6px; }
-  .slot-desc  { display: none; }
-}
-
-/* ── Skeleton ── */
-.timeline-skeleton {
-  display: flex;
-  gap: 16px;
-}
-
-.sk-slot {
+/* Skeleton */
+.skeleton-rows {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 120px;
+  gap: 0;
+  padding: 0;
+}
+
+.sk-row-full {
+  display: flex;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #30363d;
 }
 
 .sk {
-  background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%);
+  background: linear-gradient(90deg, #21262d 25%, #2d333b 50%, #21262d 75%);
   background-size: 200% 100%;
   border-radius: 6px;
   animation: shimmer 1.4s infinite;
+  height: 20px;
 }
 
-.sk-time   { width: 40px; height: 14px; }
-.sk-circle { width: 48px; height: 48px; border-radius: 50%; }
-.sk-line   { width: 80px; height: 12px; }
-.sk-line.short { width: 55px; }
+.sk-cell { flex: 1; }
+.sk-cell:first-child { max-width: 28px; }
+.sk-cell:nth-child(2) { max-width: 56px; }
+.sk-cell:nth-child(3) { max-width: 40px; }
 
 .no-data {
-  color: var(--text-dim);
+  color: #484f58;
   text-align: center;
   padding: 40px 0;
 }
